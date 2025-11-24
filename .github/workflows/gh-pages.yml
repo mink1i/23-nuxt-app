@@ -1,1 +1,52 @@
-﻿name: Build and deploy to GitHub Pageson:  push:    branches:      - mainjobs:  build-and-deploy:    runs-on: ubuntu-latest    outputs:      publish_dir: ${{ steps.find_out.outputs.publish_dir }}    steps:      - name: Checkout repository        uses: actions/checkout@v4      - name: Use Node.js 18        uses: actions/setup-node@v4        with:          node-version: '18'          cache: 'npm'      - name: Install dependencies        run: npm ci      - name: Build / Generate static site        run: |          if npm run | grep -q "generate"; then            npm run generate          else            npm run build          fi      - name: Find publish directory        id: find_out        run: |          if [ -d ".output/public" ]; then            echo "publish_dir=.output/public" >> $GITHUB_OUTPUT          elif [ -d "dist" ]; then            echo "publish_dir=dist" >> $GITHUB_OUTPUT          else            echo "No publish directory found. Listing repository for debug:"            ls -la            exit 1          fi      - name: Deploy to GitHub Pages        uses: peaceiris/actions-gh-pages@v4        with:          github_token: ${{ secrets.GITHUB_TOKEN }}          publish_branch: gh-pages          publish_dir: ${{ steps.find_out.outputs.publish_dir }}
+﻿name: Build and deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    outputs:
+      publish_dir: ${{ steps.find_out.outputs.publish_dir }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build / Generate static site
+        run: |
+          if npm run | grep -q "generate"; then
+            npm run generate
+          else
+            npm run build
+          fi
+
+      - name: Find publish directory
+        id: find_out
+        run: |
+          if [ -d ".output/public" ]; then
+            echo "publish_dir=.output/public" >> $GITHUB_OUTPUT
+          elif [ -d "dist" ]; then
+            echo "publish_dir=dist" >> $GITHUB_OUTPUT
+          else
+            echo "No publish directory found. Listing repository for debug:"
+            ls -la
+            exit 1
+          fi
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ${{ steps.find_out.outputs.publish_dir }}
