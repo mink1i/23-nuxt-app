@@ -22,7 +22,11 @@ const isHovered = ref(false);
         >-{{ product.discount }}%</span
       >
       <span v-else></span>
-      <AddFavorite :id="product.id" :is-shown="isHovered" />
+      <AddFavorite
+       :product="product"
+       :is-shown="isHovered"
+      />
+
     </div>
     <div class="card__footer">
       <div class="card__name">

@@ -1,44 +1,42 @@
-import { defineStore } from 'pinia';
+import { defineStore } from "pinia";
 
-export const useFavoritesStore = defineStore('favorites', () => {
-	const authStore = useAuthStore();
-	const favoriteIds = ref<number[]>([]);
+export interface FavoriteItem {
+  id: number;
+  name: string;
+  price: number;
+  discount?: number;
+  image: string;
+}
 
-	function isFavorite(id: number) {
-		return favoriteIds.value.find(f => f == id);
-	}
+export const useFavoritesStore = defineStore("favorites", {
+  state: () => ({
+    items: [] as FavoriteItem[]
+  }),
 
-	function toggleFavorite(id: number) {
-		if (!favoriteIds.value.includes(id)) {
-			favoriteIds.value.push(id);
-			return
-		}
-		favoriteIds.value = favoriteIds.value.filter(item => item != id);
-		if (authStore.email) {
-			save();
-		}
-	}
+  getters: {
+    isFavorite: (state) => (id: number) => state.items.some(i => i.id === id),
+  },
 
-	async function save() {
-		await $fetch<{ success: boolean }>('/api/favorites', {
-			method: 'POST',
-			body: {
-				email: authStore.email,
-				ids: favoriteIds.value
-			}
-		});
-	}
+  actions: {
+    toggle(item: FavoriteItem) {
+      const exists = this.items.find(i => i.id === item.id);
+      if (exists) {
+        this.items = this.items.filter(i => i.id !== item.id);
+      } else {
+        this.items.push(item);
+      }
+      
+    },
 
-	async function restore(email: string) {
-		const data = await $fetch<number[]>("/api/favorites", {
-			query: {
-				email: email,
-			},
-		});
-		favoriteIds.value = data;
-	}
+    async restore(email: string) {
+      const saved = localStorage.getItem("favorites:" + email);
+      this.items = saved ? JSON.parse(saved) : [];
+    },
 
-	return { favoriteIds, toggleFavorite, isFavorite, restore }
-}, {
-	persist: true
+    save(email: string) {
+      localStorage.setItem("favorites:" + email, JSON.stringify(this.items));
+    }
+  },
+
+  persist: true
 });

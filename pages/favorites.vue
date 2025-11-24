@@ -1,41 +1,57 @@
 <script setup lang="ts">
-import type { Product } from "~/interfaces/product.interface";
+import { useFavoritesStore } from "~/stores/favorites.store";
+import ProductCard from "~/components/home/ProductCard.vue";
 
-useSeoMeta({
-  title: "Избранное",
-  description: "Избранные товары",
-  ogDescription: "Избранные товары",
-});
-
-const favoriteStore = useFavoritesStore();
-const API_URL = useAPI();
-const products = ref<Product[]>();
-
-watchEffect(async () => {
-  const data = await Promise.all(
-    favoriteStore.favoriteIds.map((id) => {
-      return $fetch<{ product: Product }>(API_URL + "/products/" + id);
-    })
-  );
-  products.value = data.map((el) => el.product);
-});
+const fav = useFavoritesStore();
 </script>
 
 <template>
-  <div class="catalog__grid">
-    <CatalogCard
-      v-for="product in products"
-      :key="product.id"
-      v-bind="product"
-    />
+  <div class="favorites-page">
+    <h1>Избранное</h1>
+
+    <div v-if="fav.items.length === 0" class="empty">
+      В избранном пока пусто
+    </div>
+
+    <div class="favorites-grid" v-else>
+      <ProductCard
+        v-for="item in fav.items"
+        :key="item.id"
+        :product="item"
+      />
+    </div>
   </div>
 </template>
 
 <style scoped>
-.catalog__grid {
+
+.favorites-page {
+  max-width: 1248px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+.favorites-page h1 {
+  font-size: 28px;
+  margin-bottom: 32px;
+}
+
+.favorites-grid {
   display: grid;
-  width: 100%;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 64px 12px;
+  gap: 32px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.empty {
+  font-size: 18px;
+  color: #777;
+  margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+  .favorites-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px; /* можно чуть меньше, чтобы не было тесно */
+  }
 }
 </style>

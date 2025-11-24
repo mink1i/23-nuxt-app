@@ -1,18 +1,40 @@
 <script setup lang="ts">
-const { id, isShown } = defineProps<{
-  id: number;
-  isShown: boolean;
-}>();
-const favoriteStore = useFavoritesStore();
+import type { Product } from "~/interfaces/product.interface"
+import { useFavoritesStore } from "~/stores/favorites.store"
+
+const props = defineProps<{
+  product: Product
+  isShown: boolean
+}>()
+
+const favorites = useFavoritesStore()
+
+const isFavorite = computed(() => favorites.isFavorite(props.product.id))
+
+function toggleFavorite() {
+  const p = props.product
+
+  favorites.toggle({
+    id: p.id,
+    name: p.name,
+    price: p.price,
+    discount: p.discount,
+    image: p.images[0]
+  })
+}
 </script>
 
 <template>
   <button
-    v-show="isShown || favoriteStore.isFavorite(id)"
+    v-show="isShown || isFavorite"
     class="fav-button"
-    @click.stop.prevent="() => favoriteStore.toggleFavorite(id)"
+    type="button"
+    @click.stop.prevent="toggleFavorite"
   >
-    <Icon name="icons:favorite-add" size="18px" />
+    <Icon
+      :name="isFavorite ? 'ph:heart-fill' : 'ph:heart'"
+      size="18"
+    />
   </button>
 </template>
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const { color = "primary" } = defineProps<{
-  color?: "primary" | "ghost";
-}>();
+  color?: "primary" | "ghost"
+}>()
 </script>
 
 <template>

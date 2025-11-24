@@ -3,9 +3,12 @@
     <hr />
     <div class="footer__top">
       <ul>
-        <li><NuxtLink to="#">Контакты</NuxtLink></li>
-        <li><NuxtLink to="#">Условия покупки</NuxtLink></li>
-        <li><NuxtLink to="#">Доставка и возврат</NuxtLink></li>
+        <ul>
+  <li><NuxtLink to="/contacts">Контакты</NuxtLink></li>
+  <li><NuxtLink to="/terms">Условия покупки</NuxtLink></li>
+  <li><NuxtLink to="/shipping">Доставка и возврат</NuxtLink></li>
+</ul>
+
       </ul>
       <div class="footer__form">
         <InputField
@@ -72,7 +75,7 @@
 }
 
 .footer__top a:hover {
-  fill: red;
+  color: var(--color-black);
 }
 
 .footer__buttom {
@@ -106,4 +109,39 @@
   background: none;
   border: none;
 }
+
+/* ===== MOBILE VERSION FIX ===== */
+@media (max-width: 768px) {
+  .footer__top {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* Переносим email форму наверх */
+  .footer__form {
+    order: -1;
+    width: 100%;
+  }
+
+  .footer__form input {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .footer__top ul {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .footer__buttom {
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  .footer__social {
+    gap: 16px;
+  }
+}
+
 </style>
